@@ -223,7 +223,7 @@ function renderCustomers(searchTerm = '') {
                 <div class="mt-4">
                     <div class="flex justify-between text-xs text-brand-secondary mb-2 font-medium">
                         <span>Status Perpanjangan</span>
-                        <span class="${isCompleted ? 'text-brand-green' : 'text-brand-primary'}">${completedWeeks} / 4 Minggu</span>
+                        <span class="${isCompleted ? 'text-brand-green' : 'text-brand-primary'}">${completedWeeks} / 4 Bln</span>
                     </div>
                     <div class="h-2 w-full bg-brand-border rounded-full overflow-hidden">
                         <div class="h-full rounded-full transition-all duration-500 ease-out ${isCompleted ? 'bg-gradient-to-r from-brand-green to-emerald-400' : 'bg-gradient-to-r from-brand-blue to-purple-500'}" style="width: ${progressPercent}%;"></div>
@@ -330,7 +330,7 @@ function openDetailModal(id) {
 
             item.innerHTML = `
                 <div class="flex flex-col gap-1">
-                    <span class="font-semibold text-[15px] ${isRenewed ? 'text-brand-green' : 'text-brand-primary'}">Minggu ${index + 1} &bull; ${dateString}</span>
+                    <span class="font-semibold text-[15px] ${isRenewed ? 'text-brand-green' : 'text-brand-primary'}">Bulan ${index + 1} &bull; ${dateString}</span>
                     <span class="text-xs ${isRenewed ? 'text-brand-green/80' : 'text-brand-secondary'}">${isRenewed ? 'Sudah Diperpanjang' : 'Belum Diperpanjang'}</span>
                 </div>
                 <div class="w-6 h-6 rounded flex items-center justify-center transition-colors border ${isRenewed ? 'bg-brand-green border-brand-green text-white' : 'border-brand-border text-transparent'}">
@@ -344,7 +344,7 @@ function openDetailModal(id) {
             <div class="p-4 bg-brand-green/5 border border-brand-green/30 rounded-lg text-center">
                 <i class="fa-solid fa-circle-check text-brand-green text-3xl mb-3"></i>
                 <p class="text-sm text-brand-green font-semibold">Transaksi Selesai & Lunas</p>
-                <p class="text-xs text-brand-secondary mt-1.5 leading-relaxed">Layanan ${customer.package} merupakan pembelian langsung dan tidak memerlukan perpanjangan mingguan.</p>
+                <p class="text-xs text-brand-secondary mt-1.5 leading-relaxed">Layanan ${customer.package} merupakan pembelian langsung dan tidak memerlukan perpanjangan bulanan.</p>
             </div>
         `;
     }
@@ -354,15 +354,13 @@ function openDetailModal(id) {
 
 // Toggle Week Status
 function toggleWeek(weekIndex) {
-    // Pencegahan ganda (tindakan keamanan js): cegah minggu 1 (index 0) diubah
     if (weekIndex === 0) return;
 
     const customer = customers.find(c => c.id === currentDetailId);
     if (!customer) return;
 
-    // Optional constraint: can only check week 2 if week 1 is checked
     if (weekIndex > 0 && customer.weeks[weekIndex] === false && customer.weeks[weekIndex - 1] === false) {
-        alert('Harap perpanjang minggu sebelumnya terlebih dahulu.');
+        alert('Harap perpanjang bulan sebelumnya terlebih dahulu.');
         return;
     }
 
@@ -370,31 +368,12 @@ function toggleWeek(weekIndex) {
     const isNowRenewing = !customer.weeks[weekIndex];
     customer.weeks[weekIndex] = isNowRenewing;
 
-    // Auto-record income if checking (not un-checking)
-    if (isNowRenewing && customer.price && customer.price > 0) {
-        // Hitung tanggal perpanjangan saat ini
-        const dueDate = new Date(customer.startDate);
-        dueDate.setDate(dueDate.getDate() + (weekIndex * 7));
-        const dateStr = dueDate.toISOString().split('T')[0];
-
-        // Ambil cost jika ada (untuk backward compatibility pelanggan lama, kita anggap cost 0 jika tidak diset)
-        const cost = customer.cost || 0;
-
-        const transId = generateId();
-        saveTransactions(transId, {
-            type: `${customer.package} (${customer.name} - M${weekIndex + 1})`,
-            amount: customer.price,
-            profit: customer.price - cost,
-            date: dateStr
-        });
-    }
-
     // Save update pelanggan
     const updatedCustomer = { ...customer };
-    delete updatedCustomer.id; // Jangan simpan ID di dalam field doc agar tidak duplicate
+    delete updatedCustomer.id;
     saveCustomers(currentDetailId, updatedCustomer);
 
-    // UI update instan (sambil menunggu server balik)
+    // UI update instan
     openDetailModal(currentDetailId);
 }
 
