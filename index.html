@@ -12,6 +12,14 @@
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DigitalHub">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
     <script>
         tailwind.config = {
             theme: {
@@ -41,134 +49,214 @@
         input[type="checkbox"] {
             accent-color: #10b981;
         }
+
+        /* Glassmorphism Header */
+        .glass-header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+        }
+
+        /* App-like Transitions */
+        .view-section {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .view-section.hidden {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        /* Bottom Nav shadow */
+        .bottom-nav {
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Hide scrollbar for cleaner look */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            padding-bottom: 80px;
+            /* Space for bottom nav */
+        }
     </style>
 </head>
 
 <body class="bg-brand-dark text-brand-primary min-h-screen antialiased">
-    <div class="max-w-6xl mx-auto p-4 sm:p-5">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
         <!-- Header -->
         <header
-            class="flex flex-col sm:flex-row justify-between items-center gap-4 py-5 mb-6 sm:mb-8 border-b border-brand-border">
-            <div class="flex items-center gap-3">
-                <i
-                    class="fa-solid fa-shield-halved text-2xl text-transparent bg-clip-text bg-gradient-to-tr from-brand-blue to-purple-500"></i>
-                <h1 class="text-2xl font-bold tracking-tight text-center sm:text-left">Santri Digital Hub</h1>
+            class="sticky top-0 z-40 flex flex-row justify-between items-center gap-4 py-4 mb-4 glass-header -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div class="flex items-center gap-2.5">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-blue to-purple-600 flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-shield-halved text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white leading-tight">Digital Hub</h1>
+                    <p class="text-[10px] text-brand-secondary font-medium uppercase tracking-widest">Santri Digital</p>
+                </div>
             </div>
-            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                <button id="btn-add-customer"
-                    class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-5 py-3 rounded-lg font-semibold text-sm text-white bg-gradient-to-br from-brand-blue to-brand-blueHover hover:from-brand-blueHover hover:to-blue-700 shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] transition-all transform hover:-translate-y-0.5">
-                    <i class="fa-solid fa-plus"></i> Pelanggan Baru
+            <div class="flex items-center gap-3">
+                <button id="btn-add-customer-top" onclick="document.getElementById('btn-add-customer').click()"
+                    class="w-10 h-10 flex items-center justify-center rounded-xl bg-brand-blue/10 text-brand-blue border border-brand-blue/20 hover:bg-brand-blue hover:text-white transition-all">
+                    <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
         </header>
 
         <!-- Main Content -->
         <main>
-            <!-- Stats -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-                <div class="bg-brand-card border border-brand-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+            <!-- View: Dashboard -->
+            <div id="view-dashboard" class="view-section">
+                <!-- Stats -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
                     <div
-                        class="w-12 h-12 rounded-full bg-brand-blue/10 text-brand-blue flex shrink-0 items-center justify-center text-xl">
-                        <i class="fa-solid fa-users"></i>
+                        class="bg-brand-card border border-brand-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                        <div
+                            class="w-12 h-12 rounded-full bg-brand-blue/10 text-brand-blue flex shrink-0 items-center justify-center text-xl">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-brand-secondary text-xs uppercase tracking-wider font-semibold mb-1">Total
+                                Pelanggan</h3>
+                            <p id="total-customers" class="text-2xl font-bold truncate">0</p>
+                        </div>
                     </div>
-                    <div class="min-w-0">
-                        <h3 class="text-brand-secondary text-xs uppercase tracking-wider font-semibold mb-1">Total
-                            Pelanggan</h3>
-                        <p id="total-customers" class="text-2xl font-bold truncate">0</p>
-                    </div>
-                </div>
-                <div class="bg-brand-card border border-brand-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
                     <div
-                        class="w-12 h-12 rounded-full bg-brand-green/10 text-brand-green flex shrink-0 items-center justify-center text-xl">
-                        <i class="fa-solid fa-check-double"></i>
+                        class="bg-brand-card border border-brand-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                        <div
+                            class="w-12 h-12 rounded-full bg-brand-green/10 text-brand-green flex shrink-0 items-center justify-center text-xl">
+                            <i class="fa-solid fa-check-double"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-brand-secondary text-xs uppercase tracking-wider font-semibold mb-1">Selesai
+                                (1
+                                Bln)</h3>
+                            <p id="total-completed" class="text-2xl font-bold truncate">0</p>
+                        </div>
                     </div>
-                    <div class="min-w-0">
-                        <h3 class="text-brand-secondary text-xs uppercase tracking-wider font-semibold mb-1">Selesai (1
-                            Bln)</h3>
-                        <p id="total-completed" class="text-2xl font-bold truncate">0</p>
-                    </div>
-                </div>
-                <!-- Income Stat -->
-                <div class="bg-brand-card border border-brand-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <!-- Income Stat -->
                     <div
-                        class="w-12 h-12 rounded-full bg-yellow-500/10 text-yellow-500 flex shrink-0 items-center justify-center text-xl">
-                        <i class="fa-solid fa-wallet"></i>
+                        class="bg-brand-card border border-brand-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                        <div
+                            class="w-12 h-12 rounded-full bg-yellow-500/10 text-yellow-500 flex shrink-0 items-center justify-center text-xl">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-brand-secondary text-xs uppercase tracking-wider font-semibold mb-1">Total
+                                GMV
+                            </h3>
+                            <p id="total-gmv" class="text-xl font-bold truncate">Rp 0</p>
+                        </div>
                     </div>
-                    <div class="min-w-0">
-                        <h3 class="text-brand-secondary text-xs uppercase tracking-wider font-semibold mb-1">Total GMV
-                        </h3>
-                        <p id="total-gmv" class="text-xl font-bold truncate">Rp 0</p>
-                    </div>
-                </div>
-                <!-- Profit Stat -->
-                <div class="bg-brand-card border border-brand-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <!-- Profit Stat -->
                     <div
-                        class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex shrink-0 items-center justify-center text-xl">
-                        <i class="fa-solid fa-chart-line"></i>
+                        class="bg-brand-card border border-brand-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                        <div
+                            class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex shrink-0 items-center justify-center text-xl">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="text-brand-secondary text-xs uppercase tracking-wider font-semibold mb-1">Profit
+                                Bersih</h3>
+                            <p id="total-profit" class="text-xl font-bold truncate">Rp 0</p>
+                        </div>
                     </div>
-                    <div class="min-w-0">
-                        <h3 class="text-brand-secondary text-xs uppercase tracking-wider font-semibold mb-1">Profit
-                            Bersih</h3>
-                        <p id="total-profit" class="text-xl font-bold truncate">Rp 0</p>
+                </div>
+
+                <!-- Content Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <h2 class="text-xl font-semibold">Daftar Berlangganan</h2>
+                    <div class="relative w-full md:w-72">
+                        <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-brand-secondary"></i>
+                        <input type="text" id="search-input" placeholder="Cari nama pelanggan..."
+                            class="w-full bg-brand-card border border-brand-border text-brand-primary placeholder-brand-secondary py-3 px-4 pl-11 rounded-full outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 transition-all">
                     </div>
                 </div>
-            </div>
 
-            <!-- Content Header -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <h2 class="text-xl font-semibold">Daftar Berlangganan</h2>
-                <div class="relative w-full md:w-72">
-                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-brand-secondary"></i>
-                    <input type="text" id="search-input" placeholder="Cari nama pelanggan..."
-                        class="w-full bg-brand-card border border-brand-border text-brand-primary placeholder-brand-secondary py-3 px-4 pl-11 rounded-full outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 transition-all">
+                <!-- Customer Grid -->
+                <div id="customer-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Cards generated here -->
                 </div>
-            </div>
 
-            <!-- Customer Grid -->
-            <div id="customer-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Cards generated here -->
-            </div>
-
-            <!-- Empty State -->
-            <div id="empty-state"
-                class="hidden text-center py-16 px-5 bg-brand-card border border-dashed border-brand-border rounded-2xl">
-                <i class="fa-solid fa-box-open text-5xl text-brand-secondary opacity-50 mb-4"></i>
-                <p class="text-brand-secondary mb-5">Belum ada data pelanggan.</p>
-                <button onclick="document.getElementById('btn-add-customer').click()"
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm text-white bg-gradient-to-br from-brand-blue to-brand-blueHover">
-                    Tambah Sekarang
-                </button>
-            </div>
-
-            <!-- Income History section -->
-            <div class="mt-14 mb-6 flex justify-between items-center">
-                <h2 class="text-xl font-semibold">Riwayat Transaksi Pendapatan</h2>
-            </div>
-            <div class="bg-brand-card border border-brand-border rounded-2xl overflow-hidden shadow-sm">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-brand-secondary">
-                        <thead
-                            class="text-xs text-brand-secondary uppercase bg-brand-dark/50 border-b border-brand-border">
-                            <tr>
-                                <th scope="col" class="px-6 py-4 font-semibold">Tanggal</th>
-                                <th scope="col" class="px-6 py-4 font-semibold">Kategori Layanan</th>
-                                <th scope="col" class="px-6 py-4 font-semibold text-right">GMV</th>
-                                <th scope="col" class="px-6 py-4 font-semibold text-right">Profit</th>
-                                <th scope="col" class="px-6 py-4 font-semibold text-center w-24">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="income-list" class="divide-y divide-brand-border">
-                            <!-- Incomes generated here -->
-                        </tbody>
-                    </table>
+                <!-- Empty State -->
+                <div id="empty-state"
+                    class="hidden text-center py-16 px-5 bg-brand-card border border-dashed border-brand-border rounded-2xl">
+                    <i class="fa-solid fa-box-open text-5xl text-brand-secondary opacity-50 mb-4"></i>
+                    <p class="text-brand-secondary mb-5">Belum ada data pelanggan.</p>
+                    <button onclick="document.getElementById('btn-add-customer').click()"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm text-white bg-gradient-to-br from-brand-blue to-brand-blueHover">
+                        Tambah Sekarang
+                    </button>
                 </div>
-                <div id="income-empty-state" class="hidden text-center py-10 px-5">
-                    <i class="fa-solid fa-receipt text-4xl text-brand-secondary opacity-30 mb-3"></i>
-                    <p class="text-brand-secondary text-sm mb-4">Belum ada catatan pendapatan.</p>
+            </div> <!-- End Dashboard View -->
+
+            <!-- View: History -->
+            <div id="view-history" class="view-section hidden">
+                <!-- Income History section -->
+                <div class="mb-6 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold">Riwayat Transaksi</h2>
                 </div>
-            </div>
+                <div class="bg-brand-card border border-brand-border rounded-2xl overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-brand-secondary">
+                            <thead
+                                class="text-xs text-brand-secondary uppercase bg-brand-dark/50 border-b border-brand-border">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4 font-semibold">Tanggal</th>
+                                    <th scope="col" class="px-6 py-4 font-semibold">Kategori</th>
+                                    <th scope="col" class="px-6 py-4 font-semibold text-right">GMV</th>
+                                    <th scope="col" class="px-6 py-4 font-semibold text-right">Profit</th>
+                                    <th scope="col" class="px-6 py-4 font-semibold text-center w-20">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="income-list" class="divide-y divide-brand-border">
+                                <!-- Incomes generated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="income-empty-state" class="hidden text-center py-10 px-5">
+                        <i class="fa-solid fa-receipt text-4xl text-brand-secondary opacity-30 mb-3"></i>
+                        <p class="text-brand-secondary text-sm mb-4">Belum ada catatan pendapatan.</p>
+                    </div>
+                </div>
+            </div> <!-- End History View -->
         </main>
     </div>
+
+    <!-- Bottom Navigation -->
+    <nav
+        class="fixed bottom-0 inset-x-0 bg-brand-dark/95 backdrop-blur-md border-t border-brand-border bottom-nav z-50 flex justify-around items-center px-4 py-3">
+        <button id="nav-home" class="flex flex-col items-center gap-1 text-brand-blue transition-colors group">
+            <div
+                class="w-12 h-8 rounded-full flex items-center justify-center bg-brand-blue/10 group-active:scale-95 transition-transform">
+                <i class="fa-solid fa-house"></i>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-widest">Beranda</span>
+        </button>
+        <button id="btn-add-customer" class="flex flex-col items-center gap-1 -mt-10 group overflow-visible">
+            <div
+                class="w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-br from-brand-blue to-purple-600 text-white shadow-xl group-active:scale-90 transition-transform">
+                <i class="fa-solid fa-plus text-xl"></i>
+            </div>
+            <span class="text-[10px] font-bold text-brand-secondary uppercase tracking-widest mt-1">Tambah</span>
+        </button>
+        <button id="nav-history"
+            class="flex flex-col items-center gap-1 text-brand-secondary hover:text-brand-primary transition-colors group">
+            <div
+                class="w-12 h-8 rounded-full flex items-center justify-center bg-transparent group-active:scale-95 transition-transform">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-widest">Riwayat</span>
+        </button>
+    </nav>
 
     <!-- Modal Form Tambah Pelanggan -->
     <div id="add-modal"

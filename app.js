@@ -36,6 +36,7 @@ function init() {
     renderIncomes();
     updateStats();
     setupEventListeners();
+    registerServiceWorker();
 }
 
 // Global Firebase Access & Listener Setup
@@ -124,6 +125,54 @@ async function deleteDocDatabase(collectionName, docId) {
         console.error("Error deleting document: ", e);
         alert('Gagal menghapus data dari cloud.');
     }
+}
+
+// Service Worker Registration
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registered', reg))
+                .catch(err => console.error('Service Worker registration failed', err));
+        });
+    }
+}
+
+// Navigation & View Management
+function switchView(viewName) {
+    const dashboardView = document.getElementById('view-dashboard');
+    const historyView = document.getElementById('view-history');
+    const navHome = document.getElementById('nav-home');
+    const navHistory = document.getElementById('nav-history');
+
+    if (viewName === 'dashboard') {
+        dashboardView.classList.remove('hidden');
+        historyView.classList.add('hidden');
+
+        // Update Nav UI
+        navHome.classList.add('text-brand-blue');
+        navHome.classList.remove('text-brand-secondary');
+        navHome.querySelector('div').classList.add('bg-brand-blue/10');
+
+        navHistory.classList.remove('text-brand-blue');
+        navHistory.classList.add('text-brand-secondary');
+        navHistory.querySelector('div').classList.remove('bg-brand-blue/10');
+    } else {
+        dashboardView.classList.add('hidden');
+        historyView.classList.remove('hidden');
+
+        // Update Nav UI
+        navHistory.classList.add('text-brand-blue');
+        navHistory.classList.remove('text-brand-secondary');
+        navHistory.querySelector('div').classList.add('bg-brand-blue/10');
+
+        navHome.classList.remove('text-brand-blue');
+        navHome.classList.add('text-brand-secondary');
+        navHome.querySelector('div').classList.remove('bg-brand-blue/10');
+    }
+
+    // Smooth scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Update Dashboard Stats
@@ -433,6 +482,10 @@ function setupEventListeners() {
     searchInput.addEventListener('input', (e) => {
         renderCustomers(e.target.value);
     });
+
+    // Bottom Navigation
+    document.getElementById('nav-home').addEventListener('click', () => switchView('dashboard'));
+    document.getElementById('nav-history').addEventListener('click', () => switchView('history'));
 }
 
 // Boot
