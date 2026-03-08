@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santri Digital Hub</title>
+    <!-- Use Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                            primary: '#f8fafc',
+                            secondary: '#94a3b8',
+                            blue: '#3b82f6',
+                            blueHover: '#2563eb',
+                            green: '#10b981',
+                            red: '#ef4444',
+                            border: '#334155'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Checkbox Input Reset */
+        input[type="checkbox"] {
+            accent-color: #10b981;
+        }
+    </style>
+</head>
+
+<body class="bg-brand-dark text-brand-primary min-h-screen antialiased">
+    <div class="max-w-6xl mx-auto p-4 sm:p-5">
+        <!-- Header -->
+        <header
+            class="flex flex-col sm:flex-row justify-between items-center gap-4 py-5 mb-6 sm:mb-8 border-b border-brand-border">
+            <div class="flex items-center gap-3">
+                <i
+                    class="fa-solid fa-shield-halved text-2xl text-transparent bg-clip-text bg-gradient-to-tr from-brand-blue to-purple-500"></i>
+                <h1 class="text-2xl font-bold tracking-tight text-center sm:text-left">Santri Digital Hub</h1>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                <button id="btn-add-customer"
+                    class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-5 py-3 rounded-lg font-semibold text-sm text-white bg-gradient-to-br from-brand-blue to-brand-blueHover hover:from-brand-blueHover hover:to-blue-700 shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] transition-all transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-plus"></i> Pelanggan Baru
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+                <div class="bg-brand-card border border-brand-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <div
+                        class="w-12 h-12 rounded-full bg-brand-blue/10 text-brand-blue flex shrink-0 items-center justify-center text-xl">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-brand-secondary text-xs uppercase tracking-wider font-semibold mb-1">Total
+                            Pelanggan</h3>
+                        <p id="total-customers" class="text-2xl font-bold truncate">0</p>
+                    </div>
+                </div>
+                <div class="bg-brand-card border border-brand-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <div
+                        class="w-12 h-12 rounded-full bg-brand-green/10 text-brand-green flex shrink-0 items-center justify-center text-xl">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-brand-secondary text-xs uppercase tracking-wider font-semibold mb-1">Selesai (1
+                            Bln)</h3>
+                        <p id="total-completed" class="text-2xl font-bold truncate">0</p>
+                    </div>
+                </div>
+                <!-- Income Stat -->
+                <div class="bg-brand-card border border-brand-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <div
+                        class="w-12 h-12 rounded-full bg-yellow-500/10 text-yellow-500 flex shrink-0 items-center justify-center text-xl">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-brand-secondary text-xs uppercase tracking-wider font-semibold mb-1">Total GMV
+                        </h3>
+                        <p id="total-gmv" class="text-xl font-bold truncate">Rp 0</p>
+                    </div>
+                </div>
+                <!-- Profit Stat -->
+                <div class="bg-brand-card border border-brand-border rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <div
+                        class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex shrink-0 items-center justify-center text-xl">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-brand-secondary text-xs uppercase tracking-wider font-semibold mb-1">Profit
+                            Bersih</h3>
+                        <p id="total-profit" class="text-xl font-bold truncate">Rp 0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <h2 class="text-xl font-semibold">Daftar Berlangganan</h2>
+                <div class="relative w-full md:w-72">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-brand-secondary"></i>
+                    <input type="text" id="search-input" placeholder="Cari nama pelanggan..."
+                        class="w-full bg-brand-card border border-brand-border text-brand-primary placeholder-brand-secondary py-3 px-4 pl-11 rounded-full outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 transition-all">
+                </div>
+            </div>
+
+            <!-- Customer Grid -->
+            <div id="customer-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards generated here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state"
+                class="hidden text-center py-16 px-5 bg-brand-card border border-dashed border-brand-border rounded-2xl">
+                <i class="fa-solid fa-box-open text-5xl text-brand-secondary opacity-50 mb-4"></i>
+                <p class="text-brand-secondary mb-5">Belum ada data pelanggan.</p>
+                <button onclick="document.getElementById('btn-add-customer').click()"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm text-white bg-gradient-to-br from-brand-blue to-brand-blueHover">
+                    Tambah Sekarang
+                </button>
+            </div>
+
+            <!-- Income History section -->
+            <div class="mt-14 mb-6 flex justify-between items-center">
+                <h2 class="text-xl font-semibold">Riwayat Transaksi Pendapatan</h2>
+            </div>
+            <div class="bg-brand-card border border-brand-border rounded-2xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-brand-secondary">
+                        <thead
+                            class="text-xs text-brand-secondary uppercase bg-brand-dark/50 border-b border-brand-border">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 font-semibold">Tanggal</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">Kategori Layanan</th>
+                                <th scope="col" class="px-6 py-4 font-semibold text-right">GMV</th>
+                                <th scope="col" class="px-6 py-4 font-semibold text-right">Profit</th>
+                                <th scope="col" class="px-6 py-4 font-semibold text-center w-24">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="income-list" class="divide-y divide-brand-border">
+                            <!-- Incomes generated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="income-empty-state" class="hidden text-center py-10 px-5">
+                    <i class="fa-solid fa-receipt text-4xl text-brand-secondary opacity-30 mb-3"></i>
+                    <p class="text-brand-secondary text-sm mb-4">Belum ada catatan pendapatan.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Form Tambah Pelanggan -->
+    <div id="add-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 opacity-0 invisible transition-all duration-300 [&.active]:opacity-100 [&.active]:visible">
+        <div
+            class="bg-brand-dark border border-brand-border rounded-xl sm:rounded-2xl w-full max-w-md shadow-2xl scale-95 transition-transform duration-300 [&.active>div]:scale-100 mx-auto max-h-[90vh] overflow-y-auto flex flex-col">
+            <div
+                class="flex justify-between items-center p-5 sm:p-6 border-b border-brand-border sticky top-0 bg-brand-dark z-10">
+                <h2 class="text-lg font-semibold">Tambah Pelanggan VPN</h2>
+                <button id="close-add-modal"
+                    class="text-brand-secondary hover:text-brand-primary hover:rotate-90 transition-all text-xl p-2 -mr-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-5 sm:p-6">
+                <form id="add-form">
+                    <div class="mb-5">
+                        <label for="customer-name" class="block mb-2 text-sm font-medium text-brand-secondary">Nama
+                            Pelanggan</label>
+                        <input type="text" id="customer-name" placeholder="Misal: Budi Santoso" required
+                            class="w-full bg-brand-card border border-brand-border rounded-lg px-4 py-3 text-sm focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all">
+                    </div>
+                    <div class="mb-5">
+                        <label for="vpn-package" class="block mb-2 text-sm font-medium text-brand-secondary">Kategori
+                            Layanan</label>
+                        <select id="vpn-package" required
+                            class="w-full bg-brand-card border border-brand-border rounded-lg px-4 py-3 text-sm focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all appearance-none">
+                            <option value="" disabled selected>Pilih Layanan</option>
+                            <option value="Paket VPN">Paket VPN</option>
+                            <option value="Non VPN">Non VPN</option>
+                            <option value="Token Listrik">Token Listrik</option>
+                            <option value="Pulsa">Pulsa</option>
+                        </select>
+                    </div>
+                    <div class="mb-5 grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="customer-price"
+                                class="block mb-2 text-xs font-medium text-brand-secondary">Harga
+                                Jual / Minggu (Rp)</label>
+                            <input type="number" id="customer-price" placeholder="15000" required min="0" step="500"
+                                class="w-full bg-brand-card border border-brand-border rounded-lg px-4 py-3 text-sm focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all">
+                        </div>
+                        <div>
+                            <label for="customer-cost" class="block mb-2 text-xs font-medium text-brand-secondary">Harga
+                                Modal / Minggu (Rp)</label>
+                            <input type="number" id="customer-cost" placeholder="10000" required min="0" step="500"
+                                class="w-full bg-brand-card border border-brand-border rounded-lg px-4 py-3 text-sm focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all">
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label for="start-date" class="block mb-2 text-sm font-medium text-brand-secondary">Tanggal
+                            Mulai Berlangganan</label>
+                        <input type="date" id="start-date" required
+                            class="w-full bg-brand-card border border-brand-border rounded-lg px-4 py-3 text-sm focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all [color-scheme:dark]">
+                    </div>
+                    <div class="flex justify-end gap-3 mt-8">
+                        <button type="button" id="cancel-add"
+                            class="px-5 py-2.5 rounded-lg text-sm font-medium bg-brand-border hover:bg-slate-700 transition-colors">Batal</button>
+                        <button type="submit"
+                            class="px-5 py-2.5 rounded-lg text-sm font-medium text-white bg-gradient-to-br from-brand-blue to-brand-blueHover hover:from-brand-blueHover hover:to-blue-700 shadow-lg">Simpan
+                            Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Pelanggan (Centang Minggu) -->
+    <div id="detail-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 opacity-0 invisible transition-all duration-300 [&.active]:opacity-100 [&.active]:visible">
+        <div
+            class="bg-brand-dark border border-brand-border rounded-xl sm:rounded-2xl w-full max-w-md shadow-2xl scale-95 transition-transform duration-300 [&.active>div]:scale-100 mx-auto max-h-[90vh] overflow-y-auto flex flex-col">
+            <div
+                class="flex justify-between items-center p-5 sm:p-6 border-b border-brand-border sticky top-0 bg-brand-dark z-10">
+                <h2 class="text-lg font-semibold">Detail Perpanjangan</h2>
+                <button id="close-detail-modal"
+                    class="text-brand-secondary hover:text-brand-primary hover:rotate-90 transition-all text-xl p-2 -mr-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-5 sm:p-6">
+                <!-- Profile Header -->
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-14 h-14 rounded-full bg-gradient-to-br from-brand-blue to-purple-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <h3 id="detail-name" class="text-xl font-bold mb-1">-</h3>
+                        <span id="detail-package"
+                            class="inline-block px-3 py-1 bg-brand-blue/10 text-brand-blue text-xs font-semibold rounded-full">-</span>
+                    </div>
+                </div>
+
+                <div
+                    class="flex justify-between items-center p-4 bg-brand-card rounded-lg mb-6 text-sm border border-brand-border">
+                    <span class="text-brand-secondary">Tanggal Mulai Berlangganan:</span>
+                    <span id="detail-date" class="font-medium">-</span>
+                </div>
+
+                <!-- Weeks Area -->
+                <div class="mb-8">
+                    <h4 class="text-sm font-medium text-brand-secondary mb-4">Status Perpanjangan Mingguan</h4>
+                    <div id="week-list" class="flex flex-col gap-3">
+                        <!-- Checkboxes generated by JS -->
+                    </div>
+                </div>
+
+                <!-- Delete Actions -->
+                <div class="pt-6 border-t border-brand-border">
+                    <button id="btn-delete"
+                        class="w-full flex justify-center items-center gap-2 py-3 bg-brand-red/10 border border-brand-red/20 text-brand-red hover:bg-brand-red hover:text-white rounded-lg font-medium text-sm transition-colors">
+                        <i class="fa-solid fa-trash-can"></i> Hapus Pelanggan Ini
+                    </button>
+                    <p class="text-xs text-brand-secondary text-center mt-3">Menghapus data akan menghilangkan riwayat
+                        perpanjangan secara permanen.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            onSnapshot,
+            doc,
+            setDoc,
+            deleteDoc,
+            query,
+            orderBy
+        } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBTnE415Hz4WaQZb6_A9aprZ7Fq7153Q4",
+            authDomain: "santri-digitalhub.firebaseapp.com",
+            projectId: "santri-digitalhub",
+            storageBucket: "santri-digitalhub.firebasestorage.app",
+            messagingSenderId: "111889847756",
+            appId: "1:111889847756:web:fd3958bb035d7423d83969",
+            measurementId: "G-ETMZR5DQ3V"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Ekspos fungsi ke window agar bisa diakses oleh app.js
+        window.db = db;
+        window.collection = collection;
+        window.onSnapshot = onSnapshot;
+        window.doc = doc;
+        window.setDoc = setDoc;
+        window.deleteDoc = deleteDoc;
+        window.query = query;
+        window.orderBy = orderBy;
+    </script>
+
+    <!-- JS Functionalities -->
+    <script src="app.js"></script>
+    <script>
+        // Modal class manipulation helper for Tailwind transitions since we used the [&.active] strategy
+        // It complements the existing logic in app.js
+        const overlayClassStr = 'active';
+
+        const originalOpenModal = openModal;
+        openModal = function (modal) {
+            modal.classList.add(overlayClassStr);
+        };
+
+        const originalCloseModal = closeModal;
+        closeModal = function (modal) {
+            modal.classList.remove(overlayClassStr);
+        };
+    </script>
+</body>
+
+</html>
