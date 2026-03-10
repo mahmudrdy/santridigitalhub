@@ -6,7 +6,10 @@ const customerGrid = document.getElementById('customer-grid');
 const emptyState = document.getElementById('empty-state');
 const totalCustomersEl = document.getElementById('total-customers');
 const totalCompletedEl = document.getElementById('total-completed');
-const searchInput = document.getElementById('search-input');
+const searchInputFull = document.getElementById('search-input-full');
+const customerGridRecent = document.getElementById('customer-grid-recent');
+const customerGridFull = document.getElementById('customer-grid-full');
+const totalCustomersSub = document.getElementById('total-customers-sub');
 
 // Income DOM Elements
 const totalGmvEl = document.getElementById('total-gmv');
@@ -142,12 +145,17 @@ function registerServiceWorker() {
 function switchView(viewName) {
     const dashboardView = document.getElementById('view-dashboard');
     const historyView = document.getElementById('view-history');
+    const customersView = document.getElementById('view-customers');
     const navHome = document.getElementById('nav-home');
     const navHistory = document.getElementById('nav-history');
 
+    // Hide all views first
+    dashboardView.classList.add('hidden');
+    historyView.classList.add('hidden');
+    customersView.classList.add('hidden');
+
     if (viewName === 'dashboard') {
         dashboardView.classList.remove('hidden');
-        historyView.classList.add('hidden');
 
         // Update Nav UI
         navHome.classList.add('text-brand-blue');
@@ -157,8 +165,7 @@ function switchView(viewName) {
         navHistory.classList.remove('text-brand-blue');
         navHistory.classList.add('text-brand-secondary');
         navHistory.querySelector('div').classList.remove('bg-brand-blue/10');
-    } else {
-        dashboardView.classList.add('hidden');
+    } else if (viewName === 'history') {
         historyView.classList.remove('hidden');
 
         // Update Nav UI
@@ -169,6 +176,17 @@ function switchView(viewName) {
         navHome.classList.remove('text-brand-blue');
         navHome.classList.add('text-brand-secondary');
         navHome.querySelector('div').classList.remove('bg-brand-blue/10');
+    } else if (viewName === 'customers') {
+        customersView.classList.remove('hidden');
+
+        // Customers view doesn't change bottom nav highlight (it's a sub-view of home)
+        navHome.classList.add('text-brand-blue');
+        navHome.classList.remove('text-brand-secondary');
+        navHome.querySelector('div').classList.add('bg-brand-blue/10');
+
+        navHistory.classList.remove('text-brand-blue');
+        navHistory.classList.add('text-brand-secondary');
+        navHistory.querySelector('div').classList.remove('bg-brand-blue/10');
     }
 
     // Smooth scroll to top
@@ -190,71 +208,85 @@ function updateStats() {
 
 // Render Dashboard Cards
 function renderCustomers(searchTerm = '') {
-    customerGrid.innerHTML = '';
+    // Sort customers by date descending (latest first)
+    const sortedCustomers = [...customers].sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
 
-    const filtered = customers.filter(c =>
+    // Render Recent (Dashboard) - Limit 3
+    renderToGrid(customerGridRecent, sortedCustomers.slice(0, 3));
+
+    // Render Full List
+    const filtered = sortedCustomers.filter(c =>
         c.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    renderToGrid(customerGridFull, filtered);
 
-    if (filtered.length === 0) {
-        customerGrid.style.display = 'none';
-        emptyState.style.display = searchTerm ? 'none' : 'block';
-        if (searchTerm && customers.length > 0) {
-            customerGrid.style.display = 'grid';
-            customerGrid.innerHTML = `<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">Tidak ada pelanggan dengan nama "${searchTerm}".</p>`;
-        }
-    } else {
-        customerGrid.style.display = 'grid';
-        emptyState.style.display = 'none';
+    // Update sub-text
+    totalCustomersSub.textContent = `${customers.length} Pelanggan Terdaftar`;
+}
 
-        filtered.forEach(customer => {
-            const isVpn = customer.package === 'Paket VPN';
-            const completedWeeks = customer.weeks.filter(w => w).length;
-            const progressPercent = (completedWeeks / 4) * 100;
-            const isCompleted = completedWeeks === 4;
+function renderToGrid(gridElement, customerList) {
+    gridElement.innerHTML = '';
 
-            const card = document.createElement('div');
-            card.className = 'group bg-brand-card border border-brand-border rounded-xl p-6 cursor-pointer hover:-translate-y-1 hover:border-brand-blue hover:shadow-[0_12px_20px_-8px_rgba(0,0,0,0.4)] transition-all relative overflow-hidden';
-            card.onclick = () => openDetailModal(customer.id);
-
-            let progressHtml = '';
-            if (isVpn) {
-                progressHtml = `
-                <div class="mt-4">
-                    <div class="flex justify-between text-xs text-brand-secondary mb-2 font-medium">
-                        <span>Status Perpanjangan</span>
-                        <span class="${isCompleted ? 'text-brand-green' : 'text-brand-primary'}">${completedWeeks} / 4 Bln</span>
-                    </div>
-                    <div class="h-2 w-full bg-brand-border rounded-full overflow-hidden">
-                        <div class="h-full rounded-full transition-all duration-500 ease-out ${isCompleted ? 'bg-gradient-to-r from-brand-green to-emerald-400' : 'bg-gradient-to-r from-brand-blue to-purple-500'}" style="width: ${progressPercent}%;"></div>
-                    </div>
-                </div>
-                `;
-            } else {
-                progressHtml = `
-                <div class="mt-4">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                        <i class="fa-solid fa-check"></i> Pembelian Langsung
-                    </span>
-                </div>
-                `;
-            }
-
-            card.innerHTML = `
-                <div class="flex justify-between items-start mb-5">
-                    <div>
-                        <h3 class="text-lg font-semibold text-brand-primary mb-1">${customer.name}</h3>
-                        <div class="text-xs text-brand-secondary flex items-center gap-1.5 font-medium">
-                            <i class="fa-solid ${isVpn ? 'fa-server' : 'fa-bolt'} text-brand-blue"></i> ${customer.package}
-                        </div>
-                    </div>
-                    <div class="text-[11px] font-semibold text-brand-secondary bg-white/5 px-2.5 py-1 rounded-full border border-white/5">${formatDate(customer.startDate)}</div>
-                </div>
-                ${progressHtml}
-            `;
-            customerGrid.appendChild(card);
-        });
+    if (customerList.length === 0) {
+        gridElement.innerHTML = `<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding: 2rem 0;">Tidak ada data pelanggan.</p>`;
+        return;
     }
+
+    customerList.forEach(customer => {
+        const isVpn = customer.package === 'Paket VPN';
+        const completedWeeks = customer.weeks.filter(w => w).length;
+        const progressPercent = (completedWeeks / 4) * 100;
+        const isCompleted = completedWeeks === 4;
+        const isPaid = customer.isPaid ?? false;
+
+        const card = document.createElement('div');
+        card.className = 'group bg-brand-card border border-brand-border rounded-xl p-6 cursor-pointer hover:-translate-y-1 hover:border-brand-blue hover:shadow-[0_12px_20px_-8px_rgba(0,0,0,0.4)] transition-all relative overflow-hidden';
+        card.onclick = () => openDetailModal(customer.id);
+
+        const statusBadge = isPaid
+            ? '<span class="text-[10px] font-bold bg-brand-green/10 text-brand-green px-2 py-0.5 rounded border border-brand-green/20">LUNAS</span>'
+            : '<span class="text-[10px] font-bold bg-brand-red/10 text-brand-red px-2 py-0.5 rounded border border-brand-red/20">BELUM LUNAS</span>';
+
+        let progressHtml = '';
+        if (isVpn) {
+            progressHtml = `
+            <div class="mt-4">
+                <div class="flex justify-between text-xs text-brand-secondary mb-2 font-medium">
+                    <span>Status Perpanjangan</span>
+                    <span class="${isCompleted ? 'text-brand-green' : 'text-brand-primary'}">${completedWeeks} / 4 Bln</span>
+                </div>
+                <div class="h-2 w-full bg-brand-border rounded-full overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500 ease-out ${isCompleted ? 'bg-gradient-to-r from-brand-green to-emerald-400' : 'bg-gradient-to-r from-brand-blue to-purple-500'}" style="width: ${progressPercent}%;"></div>
+                </div>
+            </div>
+            `;
+        } else {
+            progressHtml = `
+            <div class="mt-4">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                    <i class="fa-solid fa-check"></i> Pembelian Langsung
+                </span>
+            </div>
+            `;
+        }
+
+        card.innerHTML = `
+            <div class="flex justify-between items-start mb-5">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <h3 class="text-lg font-semibold text-brand-primary leading-none">${customer.name}</h3>
+                        ${statusBadge}
+                    </div>
+                    <div class="text-xs text-brand-secondary flex items-center gap-1.5 font-medium">
+                        <i class="fa-solid ${isVpn ? 'fa-server' : 'fa-bolt'} text-brand-blue"></i> ${customer.package}
+                    </div>
+                </div>
+                <div class="text-[11px] font-semibold text-brand-secondary bg-white/5 px-2.5 py-1 rounded-full border border-white/5">${formatDate(customer.startDate)}</div>
+            </div>
+            ${progressHtml}
+        `;
+        gridElement.appendChild(card);
+    });
 }
 
 // Add New Customer
@@ -273,10 +305,10 @@ function addCustomer(e) {
     const newCustomer = {
         name: name,
         package: pkg,
-        price: price,
         cost: cost,
         startDate: date,
-        weeks: [true, false, false, false]
+        weeks: [true, false, false, false],
+        isPaid: document.getElementById('is-paid').checked
     };
 
     const newId = generateId();
@@ -307,6 +339,14 @@ function openDetailModal(id) {
     detailName.textContent = customer.name;
     detailPackage.textContent = customer.package;
     detailDate.textContent = formatDate(customer.startDate);
+
+    // Render Payment Status
+    const statusBadge = document.getElementById('payment-status-badge');
+    const isPaid = customer.isPaid ?? false;
+
+    statusBadge.innerHTML = isPaid
+        ? `<span class="text-brand-green flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Lunas</span>`
+        : `<button onclick="togglePaymentStatus('${id}')" class="px-3 py-1 bg-brand-blue text-white text-xs rounded-md hover:bg-brand-blueHover transition-colors">Tandai Lunas</button>`;
 
     // Render Checkboxes
     weekList.innerHTML = '';
@@ -375,6 +415,20 @@ function toggleWeek(weekIndex) {
 
     // UI update instan
     openDetailModal(currentDetailId);
+}
+
+// Toggle Payment Status
+async function togglePaymentStatus(id) {
+    const customer = customers.find(c => c.id === id);
+    if (!customer) return;
+
+    const newStatus = !customer.isPaid;
+
+    const updatedCustomer = { ...customer, isPaid: newStatus };
+    delete updatedCustomer.id;
+
+    await saveCustomers(id, updatedCustomer);
+    openDetailModal(id);
 }
 
 // Delete Customer
@@ -458,9 +512,13 @@ function setupEventListeners() {
     btnDelete.addEventListener('click', deleteCustomer);
 
     // Search
-    searchInput.addEventListener('input', (e) => {
+    searchInputFull.addEventListener('input', (e) => {
         renderCustomers(e.target.value);
     });
+
+    // Sub-navigation buttons
+    document.getElementById('btn-see-all').addEventListener('click', () => switchView('customers'));
+    document.getElementById('btn-back-to-dash').addEventListener('click', () => switchView('dashboard'));
 
     // Bottom Navigation
     document.getElementById('nav-home').addEventListener('click', () => switchView('dashboard'));

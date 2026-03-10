@@ -173,32 +173,48 @@
                     </div>
                 </div>
 
-                <!-- Content Header -->
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                    <h2 class="text-xl font-semibold">Daftar Berlangganan</h2>
-                    <div class="relative w-full md:w-72">
-                        <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-brand-secondary"></i>
-                        <input type="text" id="search-input" placeholder="Cari nama pelanggan..."
-                            class="w-full bg-brand-card border border-brand-border text-brand-primary placeholder-brand-secondary py-3 px-4 pl-11 rounded-full outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 transition-all">
-                    </div>
-                </div>
-
-                <!-- Customer Grid -->
-                <div id="customer-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Cards generated here -->
-                </div>
-
-                <!-- Empty State -->
-                <div id="empty-state"
-                    class="hidden text-center py-16 px-5 bg-brand-card border border-dashed border-brand-border rounded-2xl">
-                    <i class="fa-solid fa-box-open text-5xl text-brand-secondary opacity-50 mb-4"></i>
-                    <p class="text-brand-secondary mb-5">Belum ada data pelanggan.</p>
-                    <button onclick="document.getElementById('btn-add-customer').click()"
-                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm text-white bg-gradient-to-br from-brand-blue to-brand-blueHover">
-                        Tambah Sekarang
+                <!-- Content Header Recent -->
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold tracking-tight">Terbaru</h2>
+                    <button id="btn-see-all"
+                        class="text-sm font-bold text-brand-blue hover:text-brand-blueHover flex items-center gap-1 bg-brand-blue/10 px-3 py-1.5 rounded-full transition-all">
+                        Lihat Semua <i class="fa-solid fa-chevron-right text-[10px]"></i>
                     </button>
                 </div>
+
+                <!-- Customer Grid Dashboard (Limit 3) -->
+                <div id="customer-grid-recent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Top 3 Cards generated here -->
+                </div>
+
             </div> <!-- End Dashboard View -->
+
+            <!-- View: All Customers -->
+            <div id="view-customers" class="view-section hidden">
+                <header class="flex items-center gap-4 mb-8">
+                    <button id="btn-back-to-dash"
+                        class="w-10 h-10 flex items-center justify-center rounded-xl bg-brand-card border border-brand-border text-brand-secondary hover:text-brand-primary transition-all">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-bold tracking-tight">Semua Pelanggan</h2>
+                        <p id="total-customers-sub" class="text-xs text-brand-secondary">0 Pelanggan Terdaftar</p>
+                    </div>
+                </header>
+
+                <!-- Search Full List -->
+                <div class="relative mb-8">
+                    <i
+                        class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-brand-secondary"></i>
+                    <input type="text" id="search-input-full" placeholder="Cari berdasarkan nama..."
+                        class="w-full bg-brand-card border border-brand-border text-brand-primary placeholder-brand-secondary py-4 px-6 pl-12 rounded-2xl outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 transition-all shadow-lg">
+                </div>
+
+                <!-- Customer Grid Full -->
+                <div id="customer-grid-full" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- All Cards generated here -->
+                </div>
+            </div> <!-- End All Customers View -->
 
             <!-- View: History -->
             <div id="view-history" class="view-section hidden">
@@ -308,11 +324,11 @@
                                 class="w-full bg-brand-card border border-brand-border rounded-lg px-4 py-3 text-sm focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all">
                         </div>
                     </div>
-                    <div class="mb-6">
-                        <label for="start-date" class="block mb-2 text-sm font-medium text-brand-secondary">Tanggal
-                            Mulai Berlangganan</label>
-                        <input type="date" id="start-date" required
-                            class="w-full bg-brand-card border border-brand-border rounded-lg px-4 py-3 text-sm focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all [color-scheme:dark]">
+                    <div class="mb-6 flex items-center gap-3">
+                        <input type="checkbox" id="is-paid"
+                            class="w-5 h-5 rounded border-brand-border bg-brand-card text-brand-blue focus:ring-brand-blue/20 transition-all cursor-pointer">
+                        <label for="is-paid" class="text-sm font-medium text-brand-secondary cursor-pointer">Sudah Lunas
+                            (Pembayaran Awal)</label>
                     </div>
                     <div class="flex justify-end gap-3 mt-8">
                         <button type="button" id="cancel-add"
@@ -354,9 +370,15 @@
                 </div>
 
                 <div
-                    class="flex justify-between items-center p-4 bg-brand-card rounded-lg mb-6 text-sm border border-brand-border">
+                    class="flex justify-between items-center p-4 bg-brand-card rounded-lg mb-3 text-sm border border-brand-border">
                     <span class="text-brand-secondary">Tanggal Mulai Berlangganan:</span>
                     <span id="detail-date" class="font-medium">-</span>
+                </div>
+
+                <div id="payment-status-container"
+                    class="flex justify-between items-center p-4 bg-brand-card rounded-lg mb-6 text-sm border border-brand-border">
+                    <span class="text-brand-secondary">Status Pembayaran:</span>
+                    <div id="payment-status-badge" class="font-bold">-</div>
                 </div>
 
                 <!-- Weeks Area -->
