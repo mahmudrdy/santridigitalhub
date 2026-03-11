@@ -47,9 +47,12 @@ function init() {
 function checkAuth() {
     const loginWrapper = document.getElementById('login-wrapper');
     const appWrapper = document.getElementById('app-wrapper');
-    if (localStorage.getItem('isLoggedIn') === 'true') {
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
         if (loginWrapper) loginWrapper.classList.add('hidden');
         if (appWrapper) appWrapper.classList.remove('hidden');
+    } else {
+        if (loginWrapper) loginWrapper.classList.remove('hidden');
+        if (appWrapper) appWrapper.classList.add('hidden');
     }
 }
 
@@ -557,7 +560,7 @@ function setupEventListeners() {
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) {
         btnLogout.addEventListener('click', () => {
-            localStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('isLoggedIn');
             document.getElementById('app-wrapper').classList.add('hidden');
             document.getElementById('login-wrapper').classList.remove('hidden');
             document.getElementById('login-form').reset();
@@ -568,7 +571,7 @@ function setupEventListeners() {
 
 // Auth Helpers
 function processLoginSuccess() {
-    localStorage.setItem('isLoggedIn', 'true');
+    sessionStorage.setItem('isLoggedIn', 'true');
     const loginWrapper = document.getElementById('login-wrapper');
     const appWrapper = document.getElementById('app-wrapper');
     const loginError = document.getElementById('login-error');
@@ -669,6 +672,21 @@ function initBiometrics() {
         });
     }
 }
+
+// Security: Require Re-login like mBanking when app is backgrounded
+let lastVisibleTime = Date.now();
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        lastVisibleTime = Date.now();
+    } else {
+        const timeHidden = Date.now() - lastVisibleTime;
+        // Jika aplikasi disembunyikan / background lebih dari 1.5 menit (90000ms), lock otomatis
+        if (timeHidden > 90000 && sessionStorage.getItem('isLoggedIn') === 'true') {
+            sessionStorage.removeItem('isLoggedIn');
+            location.reload(); // Reload bersih layaknya tutup aplikasi pwa
+        }
+    }
+});
 
 // Boot
 init();
