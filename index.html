@@ -91,6 +91,63 @@
 </head>
 
 <body class="bg-brand-dark text-brand-primary min-h-screen antialiased">
+    <!-- Login Wrapper -->
+    <div id="login-wrapper" class="relative flex min-h-screen flex-col justify-center overflow-hidden py-6 sm:py-12 px-4 z-50">
+        <div class="relative w-full max-w-md mx-auto px-6 py-10 bg-brand-card/90 backdrop-blur-xl border border-brand-border rounded-[2rem] shadow-2xl">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-tr from-brand-blue to-purple-600 flex items-center justify-center shadow-lg mb-6 rotate-3">
+                    <i class="fa-solid fa-shield-halved text-white text-3xl -rotate-3"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white tracking-tight">Selamat Datang</h1>
+                <p class="text-sm text-brand-secondary mt-2">Masuk ke Santri Digital Hub</p>
+            </div>
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-brand-secondary mb-2 ml-1">Username</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-brand-secondary"></i>
+                        <input type="text" id="username" required
+                            class="w-full bg-brand-dark/50 border border-brand-border text-brand-primary placeholder-brand-secondary/50 py-3.5 px-4 pl-12 rounded-xl outline-none focus:border-brand-blue focus:bg-brand-dark focus:ring-4 focus:ring-brand-blue/10 transition-all"
+                            placeholder="Masukkan username (admin)">
+                    </div>
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-brand-secondary mb-2 ml-1">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-brand-secondary"></i>
+                        <input type="password" id="password" required
+                            class="w-full bg-brand-dark/50 border border-brand-border text-brand-primary placeholder-brand-secondary/50 py-3.5 px-4 pl-12 rounded-xl outline-none focus:border-brand-blue focus:bg-brand-dark focus:ring-4 focus:ring-brand-blue/10 transition-all"
+                            placeholder="Masukkan password (admin123)">
+                    </div>
+                </div>
+                <button type="submit"
+                    class="w-full py-4 px-4 bg-gradient-to-r from-brand-blue to-purple-600 hover:from-brand-blueHover hover:to-purple-700 text-white font-bold rounded-xl shadow-lg shadow-brand-blue/20 hover:shadow-brand-blue/40 transition-all active:scale-[0.98] flex justify-center items-center gap-2 mt-4">
+                    <span>Masuk ke Dashboard</span>
+                    <i class="fa-solid fa-arrow-right-to-bracket text-sm"></i>
+                </button>
+            </form>
+            <div class="mt-6">
+                <div class="relative flex items-center py-2">
+                    <div class="flex-grow border-t border-brand-border"></div>
+                    <span class="flex-shrink-0 mx-4 text-brand-secondary text-xs">Atau masuk dengan</span>
+                    <div class="flex-grow border-t border-brand-border"></div>
+                </div>
+                <button type="button" id="btn-biometric" class="w-full mt-4 py-3.5 px-4 bg-brand-dark/50 hover:bg-brand-dark border border-brand-border text-brand-primary font-medium rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-2 hidden">
+                    <i class="fa-solid fa-fingerprint text-brand-blue text-lg"></i>
+                    <span>Login Biometrik / Passkey</span>
+                </button>
+            </div>
+            <div id="login-error" class="hidden mt-6 p-4 bg-brand-red/10 border border-brand-red/20 rounded-xl text-center transition-all">
+                <p class="text-sm text-brand-red font-medium"><i class="fa-solid fa-circle-exclamation mr-1"></i> Username atau password salah!</p>
+            </div>
+            <div class="mt-8 text-center">
+                <p class="text-[11px] text-brand-secondary/60">Gunakan kredensial default untuk masuk.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Wrapper (Hidden by default) -->
+    <div id="app-wrapper" class="hidden animate-in fade-in duration-500">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
         <!-- Header -->
         <header
@@ -109,6 +166,10 @@
                 <button id="btn-add-customer-top" onclick="document.getElementById('btn-add-customer').click()"
                     class="w-10 h-10 flex items-center justify-center rounded-xl bg-brand-blue/10 text-brand-blue border border-brand-blue/20 hover:bg-brand-blue hover:text-white transition-all">
                     <i class="fa-solid fa-plus"></i>
+                </button>
+                <button id="btn-logout"
+                    class="w-10 h-10 flex items-center justify-center rounded-xl bg-brand-red/10 text-brand-red border border-brand-red/20 hover:bg-brand-red hover:text-white transition-all" title="Logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </button>
             </div>
         </header>
@@ -402,6 +463,7 @@
         </div>
     </div>
 
+    </div> <!-- End App Wrapper -->
 
     <!-- Firebase App (the core Firebase SDK) -->
     <script type="module">

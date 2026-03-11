@@ -40,6 +40,17 @@ function init() {
     updateStats();
     setupEventListeners();
     registerServiceWorker();
+    checkAuth();
+    initBiometrics();
+}
+
+function checkAuth() {
+    const loginWrapper = document.getElementById('login-wrapper');
+    const appWrapper = document.getElementById('app-wrapper');
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        if (loginWrapper) loginWrapper.classList.add('hidden');
+        if (appWrapper) appWrapper.classList.remove('hidden');
+    }
 }
 
 // Global Firebase Access & Listener Setup
@@ -523,6 +534,140 @@ function setupEventListeners() {
     // Bottom Navigation
     document.getElementById('nav-home').addEventListener('click', () => switchView('dashboard'));
     document.getElementById('nav-history').addEventListener('click', () => switchView('history'));
+
+    // Login Handle
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const loginError = document.getElementById('login-error');
+
+            if (user === 'admin' && pass === 'admin123') {
+                processLoginSuccess();
+            } else {
+                loginError.classList.remove('hidden');
+                loginError.innerHTML = `<p class="text-sm text-brand-red font-medium"><i class="fa-solid fa-circle-exclamation mr-1"></i> Username atau password salah!</p>`;
+            }
+        });
+    }
+
+    // Logout Handle
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            localStorage.removeItem('isLoggedIn');
+            document.getElementById('app-wrapper').classList.add('hidden');
+            document.getElementById('login-wrapper').classList.remove('hidden');
+            document.getElementById('login-form').reset();
+            document.getElementById('login-error').classList.add('hidden');
+        });
+    }
+}
+
+// Auth Helpers
+function processLoginSuccess() {
+    localStorage.setItem('isLoggedIn', 'true');
+    const loginWrapper = document.getElementById('login-wrapper');
+    const appWrapper = document.getElementById('app-wrapper');
+    const loginError = document.getElementById('login-error');
+    if (loginWrapper) loginWrapper.classList.add('hidden');
+    if (appWrapper) appWrapper.classList.remove('hidden');
+    if (loginError) loginError.classList.add('hidden');
+}
+
+// Base64Url string to ArrayBuffer and vice versa
+function bufferToBase64url(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let str = '';
+    for (const charCode of bytes) {
+        str += String.fromCharCode(charCode);
+    }
+    const base64String = btoa(str);
+    return base64String.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+function base64urlToBuffer(base64url) {
+    const padding = '='.repeat((4 - base64url.length % 4) % 4);
+    const base64 = (base64url + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const buffer = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        buffer[i] = rawData.charCodeAt(i);
+    }
+    return buffer;
+}
+
+// Biometric Auth Support
+function initBiometrics() {
+    const btnBiometric = document.getElementById('btn-biometric');
+    if (!btnBiometric) return;
+
+    // Show button if WebAuthn is supported
+    // Only works reliably on localhost, secure contexts (https), etc.
+    if (window.PublicKeyCredential && window.isSecureContext) {
+        btnBiometric.classList.remove('hidden');
+        
+        btnBiometric.addEventListener('click', async () => {
+            const loginError = document.getElementById('login-error');
+            loginError.classList.add('hidden');
+            try {
+                const existingCredIdBase64 = localStorage.getItem('biometricCredentialId');
+                
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+                
+                if (!existingCredIdBase64) {
+                    // Register New Device for this browser
+                    const userId = new Uint8Array(16);
+                    window.crypto.getRandomValues(userId);
+                    
+                    const publicKey = {
+                        challenge: challenge,
+                        rp: { name: "Santri Digital Hub" },
+                        user: {
+                            id: userId,
+                            name: "admin",
+                            displayName: "Admin"
+                        },
+                        pubKeyCredParams: [
+                            { type: "public-key", alg: -7 }, // ES256
+                            { type: "public-key", alg: -257 } // RS256
+                        ],
+                        authenticatorSelection: {
+                            userVerification: "preferred"
+                        },
+                        timeout: 60000,
+                        attestation: "none"
+                    };
+
+                    const cred = await navigator.credentials.create({ publicKey });
+                    localStorage.setItem('biometricCredentialId', bufferToBase64url(cred.rawId));
+                    processLoginSuccess();
+                } else {
+                    // Authenticate with existing device
+                    const publicKey = {
+                        challenge: challenge,
+                        allowCredentials: [{
+                            type: "public-key",
+                            id: base64urlToBuffer(existingCredIdBase64),
+                            transports: ["internal"]
+                        }],
+                        userVerification: "preferred",
+                        timeout: 60000
+                    };
+                    
+                    await navigator.credentials.get({ publicKey });
+                    processLoginSuccess();
+                }
+            } catch (err) {
+                console.error("Biometric Authentication Failed:", err);
+                loginError.innerHTML = `<p class="text-sm text-brand-red font-medium"><i class="fa-solid fa-circle-exclamation mr-1"></i> Biometrik gagal atau dibatalkan.</p>`;
+                loginError.classList.remove('hidden');
+            }
+        });
+    }
 }
 
 // Boot
