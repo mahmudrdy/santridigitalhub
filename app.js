@@ -311,7 +311,10 @@ function addCustomer(e) {
     const pkg = document.getElementById('vpn-package').value;
     const priceInput = document.getElementById('customer-price').value;
     const costInput = document.getElementById('customer-cost').value;
-    const date = document.getElementById('start-date').value;
+    
+    // Check if start-date exists in HTML, else use current date
+    const dateInput = document.getElementById('start-date');
+    const date = dateInput ? dateInput.value : new Date().toISOString();
 
     const price = parseInt(priceInput) || 0;
     const cost = parseInt(costInput) || 0;
